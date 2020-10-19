@@ -2,12 +2,40 @@ set -o allexport
 source ".env"
 set +o allexport
 
-tmpfile=$(mktemp)
+sqltmpfile=$(mktemp)
+#sqltmpfile=~/Downloads/temp.sql
 
-#mysqldump -P $REMOTE_MYSQL_PORT -h $REMOTE_MYSQL_HOST -u $REMOTE_MYSQL_USER $REMOTE_MYSQL_DB --password=$REMOTE_MYSQL_PASSWORD > $tmpfile
+export MYSQL_PWD=$REMOTE_MYSQL_PASSWORD
 
-#docker exec -i CONTAINER /usr/bin/mysql -u root --password=root DATABASE < backup.sql
-#mysql -u root -p $LOCAL_DATABASE_NAME < $tmpfile
-#mysql -uroot -pPASSWORD $LOCAL_DATABASE_NAME -e "update wp_uibgns_options set option_value='http://localhost' where option_name='siteurl'"
-#mysql -uroot -pPASSWORD $LOCAL_DATABASE_NAME -e "update wp_uibgns_options set option_value='http://localhost' where option_name='home'"
-#rsync -avzh dll_admin@lovelanguages.melaniehoff.com:/home/dll_admin/lovelanguages.melaniehoff.com/wp-content/uploads/ ./wp-content/uploads/
+echo "--- Doing a MYSQL dump of the remote server (${REMOTE_MYSQL_HOST}) and copying it to a local temporary file... (${tmpfile})"
+
+mysqldump  -h "$REMOTE_MYSQL_HOST" -P "$REMOTE_MYSQL_PORT" -u "$REMOTE_MYSQL_USER" --databases "$REMOTE_MYSQL_DBNAME" --column-statistics=0  > $sqltmpfile
+
+MSCONTAINERNAME="wordpress-docker_mysql_${PROJECT_NICKNAME}"
+WPCONTAINERNAME="wordpress-docker_wordpress_${PROJECT_NICKNAME}"
+
+echo "--- Loading MYSQL dump into local Docker database (${MSCONTAINERNAME})"
+
+docker exec -i "$MSCONTAINERNAME" /usr/bin/mysql -u root --password=somewordpress  < $sqltmpfile
+
+echo "--- Logging into SSH server (${REMOTE_SSH_HOST}) and scanning wp-config.php to get wordpress table_prefix..."
+
+wpconfigtmpfile=$(mktemp)
+#wpconfigtmpfile=~/Downloads/tempwpconfig.php
+
+scp "$REMOTE_SSH_USER"@"$REMOTE_SSH_HOST":~/"$REMOTE_SSH_WP_DIRECTORY"/wp-config.php $wpconfigtmpfile
+
+wp_table_prefix=$(./get_table_prefix_from_wp_config.py $wpconfigtmpfile)
+
+echo "----- WE got it: table_prefix = ${wp_table_prefix}"
+
+
+echo "--- Setting our Docker database so that the wordpress installation site points to localhost..."
+
+docker exec -i "$MSCONTAINERNAME" /usr/bin/mysql -u root --password=somewordpress "$REMOTE_MYSQL_DBNAME" -e "update ${wp_table_prefix}options set option_value='http://localhost' where option_name='siteurl'"
+docker exec -i "$MSCONTAINERNAME" /usr/bin/mysql -u root --password=somewordpress "$REMOTE_MYSQL_DBNAME" -e "update ${wp_table_prefix}options set option_value='http://localhost' where option_name='home'"
+
+echo "--- Copying/Rsyncing remote database to our local wp-content folder..."
+
+rsync -avzh "$REMOTE_SSH_USER"@"$REMOTE_SSH_HOST":~/"$REMOTE_SSH_WP_DIRECTORY"/wp-content/uploads/ ./wp-content/uploads/
+
