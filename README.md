@@ -6,4 +6,5 @@ Wordpress-Docker installation, designed to edit Wordpress sites locally
 
 ## Setup
 1. Clone this repo https://github.com/dantaeyoung/wordpress-docker
+2. In the directory, run `docker-compose up -d`
 
