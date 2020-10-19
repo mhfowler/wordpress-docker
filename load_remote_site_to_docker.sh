@@ -5,8 +5,8 @@ set +o allexport
 
 echo "--- Logging into SSH server (${REMOTE_SSH_HOST}) and scanning wp-config.php to get wordpress table_prefix..."
 
-#wpconfigtmpfile=$(mktemp)
-wpconfigtmpfile=~/Downloads/tempwpconfig.php
+wpconfigtmpfile=$(mktemp)
+#wpconfigtmpfile=~/Downloads/tempwpconfig.php
 
 scp "$REMOTE_SSH_USER"@"$REMOTE_SSH_HOST":~/"$REMOTE_SSH_WP_DIRECTORY"/wp-config.php $wpconfigtmpfile
 
@@ -26,8 +26,8 @@ docker-compose up -d
 
 
 
-#sqltmpfile=$(mktemp)
-sqltmpfile=~/Downloads/temp.sql
+sqltmpfile=$(mktemp)
+#sqltmpfile=~/Downloads/temp.sql
 
 echo "--- Doing a MYSQL dump of the remote server (${REMOTE_MYSQL_HOST}) and copying it to a local temporary file... (${sqltmpfile})"
 
