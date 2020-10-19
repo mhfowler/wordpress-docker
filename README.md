@@ -9,4 +9,4 @@ Wordpress-Docker installation, designed to edit Wordpress sites locally
 1. Clone this repo https://github.com/dantaeyoung/wordpress-docker
 2. Copy `.env.example` to `.env` and edit to fill in with remote installation credentials.
 3. In the directory, run `load_remote_site_to_docker.sh`
-
+4. Enter in the SSH password when prompted
