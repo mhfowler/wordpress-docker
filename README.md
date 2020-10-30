@@ -11,7 +11,8 @@ Wordpress-Docker installation, designed to edit Wordpress sites locally
 3. In the directory, run `load_remote_site_to_docker.sh`
 4. Enter in the SSH password when prompted
 
-
+## Run
+1. In the project root directory, run `docker compose up`
 
 
 ## Troubleshooting
