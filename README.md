@@ -1,4 +1,4 @@
-Wordpress-Docker installation, designed to edit Wordpress sites locally 
+Wordpress-Docker installation, designed to edit Wordpress sites locally
 
 ## Prerequisites
 1. Install Docker https://www.docker.com/products/docker-desktop
@@ -10,3 +10,16 @@ Wordpress-Docker installation, designed to edit Wordpress sites locally
 2. Copy `.env.example` to `.env` and edit to fill in with remote installation credentials.
 3. In the directory, run `load_remote_site_to_docker.sh`
 4. Enter in the SSH password when prompted
+
+
+
+
+## Troubleshooting
+
+If you are having trouble with database connection,
+you can try renaming the data volume in docker-compose.yml,
+by changing db_data to db_data_newnewname.
+
+You can also use `docker volume prune` to delete old data volumes.
+
+The docker database stores its data persistently in a data volume.

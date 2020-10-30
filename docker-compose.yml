@@ -4,11 +4,11 @@ services:
    db:
      image: mysql:5.7
      volumes:
-       - db_data:/var/lib/mysql
+       - db_data_vol:/var/lib/mysql
      restart: always
      environment:
        MYSQL_ROOT_PASSWORD: somewordpress
-       MYSQL_DATABASE: ${REMOTE_MYSQL_DBNAME} 
+       MYSQL_DATABASE: ${LOCAL_MYSQL_DBNAME}
        MYSQL_USER: wordpress
        MYSQL_PASSWORD: wordpress
      container_name: wordpress-docker_mysql_${PROJECT_NICKNAME}
@@ -24,10 +24,10 @@ services:
        - ./wp-content:/var/www/html/wp-content
      environment:
        WORDPRESS_DB_HOST: db:3306
-       WORDPRESS_DB_USER: root
-       WORDPRESS_DB_PASSWORD: somewordpress
-       WORDPRESS_DB_NAME: ${REMOTE_MYSQL_DBNAME}
+       WORDPRESS_DB_USER: wordpress
+       WORDPRESS_DB_PASSWORD: wordpress
+       WORDPRESS_DB_NAME: ${LOCAL_MYSQL_DBNAME}
        WORDPRESS_TABLE_PREFIX: ${WP_TABLE_PREFIX}
      container_name: wordpress-docker_wordpress_${PROJECT_NICKNAME}
 volumes:
-    db_data: {}
+    db_data_vol: {}
